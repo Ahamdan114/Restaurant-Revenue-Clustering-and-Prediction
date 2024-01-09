@@ -1,16 +1,41 @@
-# This is a sample Python script.
+import numpy as np
+import pandas as pd
+from sklearn.datasets import make_classification
+from factor_analyzer import FactorAnalyzer
+import matplotlib.pyplot as plt
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# Assuming your dataset is in a CSV file named 'your_dataset.csv'
+file_path = r'Country-data.csv'
 
+# Specify columns to exclude
+exclude_columns = ["country"]
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Set the limit to 10,000 rows
+limit_rows = 10000
 
+# Use pandas to read the CSV file into a DataFrame
+df = pd.read_csv(file_path, nrows=limit_rows, usecols=lambda col: col not in exclude_columns)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+# Instantiate the FactorAnalyzer with the number of factors you want to extract
+n_factors = 3
+fa = FactorAnalyzer(n_factors, rotation='varimax')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Fit the model to the data
+fa.fit(df)
+
+# Get factor loadings
+factor_loadings = fa.loadings_
+
+# Print factor loadings
+print("Factor Loadings:")
+print(factor_loadings)
+
+# Scree plot to determine the number of factors
+ev, v = fa.get_eigenvalues()
+plt.scatter(range(1, len(df.columns) + 1), ev)
+plt.plot(range(1, len(df.columns) + 1), ev)
+plt.title('Scree Plot')
+plt.xlabel('Factor Number')
+plt.ylabel('Eigenvalue')
+plt.grid()
+plt.show()
